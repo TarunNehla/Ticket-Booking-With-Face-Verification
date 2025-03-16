@@ -7,7 +7,7 @@ import FaceCapture from '../components/FaceCapture';
 const PassengerDetails = () => {
   const navigate = useNavigate();
   const { bookingData, updatePassengers } = useBooking();
-  const [passengers, setPassengers] = React.useState<(Passenger & { faceDescriptor?: Float32Array })[]>(
+  const [passengers, setPassengers] = React.useState<(Passenger & { faceImages?: string[] })[]>(
     bookingData.passengers.length ? bookingData.passengers : [
       { firstName: '', lastName: '', email: '' },
       { firstName: '', lastName: '', email: '' }
@@ -20,22 +20,21 @@ const PassengerDetails = () => {
     setPassengers(newPassengers);
   };
 
-  const handleFaceCapture = (index: number, faceDescriptor: Float32Array) => {
+  const handleFaceCapture = (index: number, imageUrls: string[]) => {
     const newPassengers = [...passengers];
-    newPassengers[index] = { ...newPassengers[index], faceDescriptor };
+    newPassengers[index] = { ...newPassengers[index], faceImages: imageUrls };
     setPassengers(newPassengers);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Check if all passengers have face descriptors
-    const allHaveFaces = passengers.every(p => p.faceDescriptor);
+   
+    // Check if all passengers have face images
+    const allHaveFaces = passengers.every(p => p.faceImages && p.faceImages.length > 0);
     if (!allHaveFaces) {
       alert('Please capture faces for all passengers');
       return;
     }
-
     updatePassengers(passengers);
     navigate('/seat-selection');
   };
@@ -76,12 +75,13 @@ const PassengerDetails = () => {
                   />
                   <div className="md:col-span-2">
                     <FaceCapture
-                      onCapture={(descriptor) => handleFaceCapture(index, descriptor)}
-                      buttonText={passenger.faceDescriptor ? "Retake Face Photo" : "Take Face Photo"}
+                      onCapture={(images) => handleFaceCapture(index, images)}
+                      buttonText={passenger.faceImages && passenger.faceImages.length > 0 ? "Retake Face Photos" : "Take Face Photos"}
+                      maxImages={3}
                     />
-                    {passenger.faceDescriptor && (
+                    {passenger.faceImages && passenger.faceImages.length > 0 && (
                       <div className="text-center text-sm text-green-600 mt-2">
-                        ✓ Face captured successfully
+                        ✓ {passenger.faceImages.length} photo{passenger.faceImages.length > 1 ? 's' : ''} captured successfully
                       </div>
                     )}
                   </div>

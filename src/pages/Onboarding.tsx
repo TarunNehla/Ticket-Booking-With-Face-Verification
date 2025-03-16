@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Printer } from 'lucide-react';
 import { useBooking } from '../context/BookingContext';
 import { format } from 'date-fns';
-import FaceCapture from '../components/FaceCapture';
-import * as faceapi from 'face-api.js';
+import FaceValidation from '../components/FaceValidation';
 
 const Onboarding = () => {
   const { bookingData, updateApproval } = useBooking();
@@ -62,27 +61,18 @@ const Onboarding = () => {
     document.body.removeChild(iframe);
   };
 
-  const handleVerification = async (index: number, currentFaceDescriptor: Float32Array) => {
-    const registeredFaceDescriptor = (bookingData.passengers[index] as any).faceDescriptor;
-    
-    if (!registeredFaceDescriptor) {
-      alert('No registered face found for this passenger');
-      return;
-    }
-
-    const distance = faceapi.euclideanDistance(registeredFaceDescriptor, currentFaceDescriptor);
-    const threshold = 0.6; // Adjust this threshold based on testing
-
-    if (distance < threshold) {
+  const handleVerification = (index: number, isValid: boolean) => {
+    if (isValid) {
       setVerifiedPassengers(prev => [...prev, index]);
       if (!verifiedPassengers.includes(index)) {
         const allVerified = [...verifiedPassengers, index].length === bookingData.passengers.length;
         updateApproval(allVerified);
       }
+      setIsVerifying(null);
     } else {
-      alert('Face verification failed. Please try again.');
+      // Keep verification panel open if failed
+      console.log('Face verification failed. Please try again.');
     }
-    setIsVerifying(null);
   };
 
   const renderApprovedPass = (index: number) => {
@@ -101,10 +91,18 @@ const Onboarding = () => {
               <h3 className="text-lg font-semibold mb-4">
                 Verify {passenger.firstName} {passenger.lastName}
               </h3>
-              <FaceCapture
-                onCapture={(descriptor) => handleVerification(index, descriptor)}
-                buttonText="Capture Face for Verification"
+              <FaceValidation
+                savedImageUrls={(passenger as any).faceImages || []}
+                onValidationComplete={(isValid) => handleVerification(index, isValid)}
+                buttonText="Verify Identity"
+                threshold={0.6} // Adjust this threshold based on testing
               />
+              <button
+                className="btn btn-outline mt-4"
+                onClick={() => setIsVerifying(null)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         ) : (
@@ -169,8 +167,11 @@ const Onboarding = () => {
             <button
               className="btn btn-primary"
               onClick={() => setIsVerifying(index)}
+              disabled={!((passenger as any).faceImages && (passenger as any).faceImages.length > 0)}
             >
-              Verify Identity
+              {(passenger as any).faceImages && (passenger as any).faceImages.length > 0 
+                ? "Verify Identity" 
+                : "No Reference Images"}
             </button>
           </div>
         )}
