@@ -1,4 +1,3 @@
-import React from 'react';
 import { Printer } from 'lucide-react';
 import { useBooking } from '../context/BookingContext';
 import { format } from 'date-fns';

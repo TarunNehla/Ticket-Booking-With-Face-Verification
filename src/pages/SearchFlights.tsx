@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Flight } from '../types';
 import { useBooking } from '../context/BookingContext';
 
-const CITIES = ['New York', 'London', 'Tokyo', 'Paris'];
+const CITIES = ['Hisar', 'Pune', 'Delhi', 'Jaipur'];
 
 const SAMPLE_FLIGHTS: Flight[] = [
   {
     id: '1',
-    company: 'SkyWings',
-    price: 299,
+    company: 'Indigo',
+    price: 2990,
     departureTime: '09:00',
     arrivalTime: '14:00',
     source: '',
@@ -18,7 +18,7 @@ const SAMPLE_FLIGHTS: Flight[] = [
   {
     id: '2',
     company: 'AirGlobe',
-    price: 349,
+    price: 3490,
     departureTime: '11:30',
     arrivalTime: '16:30',
     source: '',
@@ -26,8 +26,8 @@ const SAMPLE_FLIGHTS: Flight[] = [
   },
   {
     id: '3',
-    company: 'StarFlight',
-    price: 279,
+    company: 'AirIndia',
+    price: 2790,
     departureTime: '14:00',
     arrivalTime: '19:00',
     source: '',
@@ -36,7 +36,7 @@ const SAMPLE_FLIGHTS: Flight[] = [
   {
     id: '4',
     company: 'CloudAir',
-    price: 319,
+    price: 3190,
     departureTime: '16:30',
     arrivalTime: '21:30',
     source: '',
@@ -137,7 +137,7 @@ const SearchFlights = () => {
                   </div>
                 </div>
                 <div className="card-actions justify-end mt-4">
-                  <p className="text-xl font-bold">${flight.price}</p>
+                  <p className="text-xl font-bold">Rs.{flight.price}</p>
                 </div>
               </div>
             </div>

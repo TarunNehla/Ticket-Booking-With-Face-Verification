@@ -41,16 +41,13 @@ const SeatSelection = () => {
           <p className="mb-4">Please select 2 seats</p>
           
           <div className="relative w-full max-w-md mx-auto mb-8">
-            {/* Airplane nose */}
             <div className="w-24 h-24 bg-base-200 rounded-full mx-auto mb-4"></div>
             
-            {/* Seats grid */}
             <div className="grid grid-cols-6 gap-2">
               {generateSeats().map((seat) => {
                 const col = seat.charAt(1);
                 return (
                   <React.Fragment key={seat}>
-                    {/* Add aisle space */}
                     {col === 'C' && <div className="col-span-1"></div>}
                     <button
                       className={`btn btn-sm ${

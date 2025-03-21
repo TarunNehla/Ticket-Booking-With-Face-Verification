@@ -19,7 +19,6 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
   const [isHolding, setIsHolding] = useState(false);
   const captureIntervalRef = useRef<number | null>(null);
 
-  // Start camera when isCapturing becomes true
   const startCamera = useCallback(async () => {
     try {
       if (!videoRef.current) return;
@@ -35,7 +34,6 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     }
   }, []);
 
-  // Stop camera function
   const stopCamera = useCallback(() => {
     if (!videoRef.current) return;
     
@@ -47,7 +45,6 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     }
   }, []);
 
-  // Handle camera based on isCapturing state
   useEffect(() => {
     if (isCapturing) {
       startCamera();
@@ -60,12 +57,10 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     };
   }, [isCapturing, startCamera, stopCamera]);
 
-  // Function to capture a single image
   const captureImage = async () => {
     if (!videoRef.current || !captureCanvasRef.current) return null;
     
     try {
-      // Create a snapshot of the video
       const context = captureCanvasRef.current.getContext('2d');
       if (!context) return null;
       
@@ -79,7 +74,6 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
         videoRef.current.videoHeight
       );
       
-      // Convert canvas to image URL
       const imageUrl = captureCanvasRef.current.toDataURL('image/jpeg');
       
       return {
@@ -92,14 +86,12 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     }
   };
 
-  // Handle Start button click
   const handleStart = () => {
     console.log('Start button clicked');
     setCapturedImages([]);
     setIsCapturing(true);
   };
 
-  // Handle Cancel button click
   const handleCancel = () => {
     console.log('Cancel button clicked');
     
@@ -113,7 +105,6 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     setCapturedImages([]);
   };
 
-  // Handle Save button click
   const handleSave = () => {
     console.log('Save button clicked');
     
@@ -127,20 +118,17 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     setIsCapturing(false);
   };
 
-  // Handle mouse down on capture button
   const handleCaptureMouseDown = () => {
     console.log('Capture button pressed');
     setIsHolding(true);
     setIsProcessing(true);
     
-    // Take first photo immediately
     captureImage().then(image => {
       if (image) {
         setCapturedImages(prev => [...prev, image]);
       }
     });
     
-    // Set up interval for continuous capture
     captureIntervalRef.current = window.setInterval(async () => {
       if (capturedImages.length >= maxImages) {
         clearInterval(captureIntervalRef.current!);
@@ -154,10 +142,9 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
       if (image) {
         setCapturedImages(prev => [...prev, image]);
       }
-    }, 1000); // Capture every second
+    }, 1000); 
   };
 
-  // Handle mouse up on capture button
   const handleCaptureMouseUp = () => {
     console.log('Capture button released');
     
@@ -170,7 +157,6 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     setIsProcessing(false);
   };
 
-  // Clean up interval on unmount
   useEffect(() => {
     return () => {
       if (captureIntervalRef.current) {
@@ -179,7 +165,6 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
     };
   }, []);
 
-  // Handle removal of a captured image
   const handleRemoveImage = (id: string) => {
     setCapturedImages(prev => prev.filter(image => image.id !== id));
   };
@@ -206,11 +191,10 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
             />
             <canvas 
               ref={captureCanvasRef}
-              className="hidden" // Hidden canvas for capturing images
+              className="hidden" 
             />
           </div>
           
-          {/* Thumbnails of captured images */}
           {capturedImages.length > 0 && (
             <div className="mb-4">
               <h3 className="text-sm font-medium mb-2">Captured Photos ({capturedImages.length}/{maxImages})</h3>
@@ -240,7 +224,7 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({
               className="btn btn-primary flex-1"
               onMouseDown={handleCaptureMouseDown}
               onMouseUp={handleCaptureMouseUp}
-              onMouseLeave={handleCaptureMouseUp} // In case cursor leaves the button while holding
+              onMouseLeave={handleCaptureMouseUp}
               disabled={isProcessing && !isHolding || capturedImages.length >= maxImages}
               type="button"
             >

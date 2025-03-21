@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Printer } from 'lucide-react';
 import { useBooking } from '../context/BookingContext';
 import { format } from 'date-fns';
@@ -70,7 +70,6 @@ const Onboarding = () => {
       }
       setIsVerifying(null);
     } else {
-      // Keep verification panel open if failed
       console.log('Face verification failed. Please try again.');
     }
   };
@@ -95,7 +94,7 @@ const Onboarding = () => {
                 savedImageUrls={(passenger as any).faceImages || []}
                 onValidationComplete={(isValid) => handleVerification(index, isValid)}
                 buttonText="Verify Identity"
-                threshold={0.6} // Adjust this threshold based on testing
+                threshold={0.6}
               />
               <button
                 className="btn btn-outline mt-4"

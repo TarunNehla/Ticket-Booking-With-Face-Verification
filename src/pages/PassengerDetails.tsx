@@ -29,7 +29,6 @@ const PassengerDetails = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
    
-    // Check if all passengers have face images
     const allHaveFaces = passengers.every(p => p.faceImages && p.faceImages.length > 0);
     if (!allHaveFaces) {
       alert('Please capture faces for all passengers');

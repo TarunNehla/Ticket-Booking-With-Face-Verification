@@ -11,7 +11,7 @@ interface FaceValidationProps {
 const FaceValidation: React.FC<FaceValidationProps> = ({
   savedImageUrls,
   onValidationComplete,
-  threshold = 0.6, // Default threshold for face matching
+  threshold = 0.6,
   buttonText = "Verify Identity"
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -27,7 +27,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
   } | null>(null);
   const [savedDescriptors, setSavedDescriptors] = useState<Float32Array[]>([]);
 
-  // Load models once on mount
   useEffect(() => {
     let isMounted = true;
     
@@ -56,7 +55,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
     };
   }, []);
 
-  // Extract face descriptors from saved images
   useEffect(() => {
     if (!isInitialized || savedImageUrls.length === 0) return;
 
@@ -90,7 +88,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
     extractDescriptors();
   }, [isInitialized, savedImageUrls]);
 
-  // Helper function to create an image element from a URL
   const createImageElement = (url: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -100,7 +97,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
     });
   };
 
-  // Start camera when isCapturing becomes true
   const startCamera = useCallback(async () => {
     try {
       if (!videoRef.current) return;
@@ -128,7 +124,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
     }
   }, []);
 
-  // Handle camera based on isCapturing state
   useEffect(() => {
     if (isCapturing) {
       startCamera();
@@ -141,41 +136,33 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
     };
   }, [isCapturing, startCamera, stopCamera]);
 
-  // Function to match a face against saved descriptors
   const matchFace = (descriptor: Float32Array): { isMatch: boolean; distance: number } => {
     if (savedDescriptors.length === 0) {
       return { isMatch: false, distance: 1.0 };
     }
     
-    // Calculate distance to each saved descriptor
     const distances = savedDescriptors.map(savedDescriptor => {
       return faceapi.euclideanDistance(descriptor, savedDescriptor);
     });
     
-    // Find closest match
     const minDistance = Math.min(...distances);
     console.log(`Closest match distance: ${minDistance}`);
     
-    // Distance below threshold means it's a match
-    // Lower distance = better match
     return { isMatch: minDistance < threshold, distance: minDistance };
   };
 
-  // Handle Start button click
   const handleStart = () => {
     console.log('Start verification');
     setIsCapturing(true);
     setValidationResult(null);
   };
 
-  // Handle Cancel button click
   const handleCancel = () => {
     console.log('Cancel verification');
     setIsCapturing(false);
     setValidationResult(null);
   };
 
-  // Capture and validate face
   const handleCapture = async () => {
     if (!videoRef.current || !canvasRef.current || !captureCanvasRef.current || savedDescriptors.length === 0) {
       return;
@@ -184,7 +171,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
     setIsProcessing(true);
     
     try {
-      // Detect face in current video frame
       const detections = await faceapi
         .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks()
@@ -200,7 +186,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
         return;
       }
       
-      // Create a snapshot of the video
       const context = captureCanvasRef.current.getContext('2d');
       if (!context) {
         setIsProcessing(false);
@@ -217,7 +202,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
         videoRef.current.videoHeight
       );
       
-      // Draw face detection on display canvas
       const displaySize = { 
         width: videoRef.current.videoWidth, 
         height: videoRef.current.videoHeight 
@@ -232,7 +216,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
         faceapi.draw.drawDetections(canvasRef.current, [resizedDetections]);
       }
       
-      // Match the detected face against saved descriptors
       const { isMatch, distance } = matchFace(detections.descriptor);
       const confidence = Math.max(0, Math.min(100, (1 - distance) * 100));
       
@@ -249,7 +232,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
       setValidationResult(result);
       onValidationComplete(isMatch);
       
-      // Auto-close camera after successful validation
       if (isMatch) {
         setTimeout(() => {
           setIsCapturing(false);
@@ -292,7 +274,6 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
               muted
               className="w-full rounded-lg"
               onLoadedMetadata={() => {
-                // Make sure video is loaded before drawing canvas
                 if (canvasRef.current && videoRef.current) {
                   canvasRef.current.width = videoRef.current.videoWidth;
                   canvasRef.current.height = videoRef.current.videoHeight;
@@ -305,7 +286,7 @@ const FaceValidation: React.FC<FaceValidationProps> = ({
             />
             <canvas 
               ref={captureCanvasRef}
-              className="hidden" // Hidden canvas for capturing images
+              className="hidden" 
             />
           </div>
           
