@@ -30,7 +30,7 @@ const SeatSelection = () => {
 
   const handleContinue = () => {
     updateSeats(selectedSeats);
-    navigate('/onboarding');
+    navigate('/boarding-pass');
   };
 
   return (

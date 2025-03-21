@@ -10,16 +10,16 @@ const BoardingPass = () => {
   const handlePrint = (index: number) => {
     const boardingPass = document.getElementById(`boarding-pass-${index}`);
     if (!boardingPass) return;
-
+  
     const printContent = boardingPass.innerHTML;
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentWindow?.document;
-    if (!iframeDoc) return;
-
-    iframeDoc.write(`
+    
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow pop-ups for printing functionality');
+      return;
+    }
+  
+    printWindow.document.write(`
       <html>
         <head>
           <title>Boarding Pass</title>
@@ -36,14 +36,24 @@ const BoardingPass = () => {
             }
           </style>
         </head>
-        <body>${printContent}</body>
+        <body>
+          ${printContent}
+          <script>
+            // Print and close the window after content is loaded
+            window.onload = function() {
+              setTimeout(() => {
+                window.print();
+                window.onafterprint = function() {
+                  window.close();
+                };
+              }, 500);
+            }
+          </script>
+        </body>
       </html>
     `);
-
-    iframeDoc.close();
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
-    document.body.removeChild(iframe);
+    
+    printWindow.document.close();
   };
 
   const renderBoardingPass = (index: number) => {

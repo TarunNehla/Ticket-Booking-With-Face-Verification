@@ -12,19 +12,19 @@ const Onboarding = () => {
   const handlePrint = (index: number) => {
     const boardingPass = document.getElementById(`approved-pass-${index}`);
     if (!boardingPass) return;
-
+  
     const printContent = boardingPass.innerHTML;
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    const iframeDoc = iframe.contentWindow?.document;
-    if (!iframeDoc) return;
-
-    iframeDoc.write(`
+    
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow pop-ups for printing functionality');
+      return;
+    }
+  
+    printWindow.document.write(`
       <html>
         <head>
-          <title>Approved Boarding Pass</title>
+          <title>Boarding Pass</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 20px; }
             .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -51,14 +51,24 @@ const Onboarding = () => {
             }
           </style>
         </head>
-        <body>${printContent}</body>
+        <body>
+          ${printContent}
+          <script>
+            // Print and close the window after content is loaded
+            window.onload = function() {
+              setTimeout(() => {
+                window.print();
+                window.onafterprint = function() {
+                  window.close();
+                };
+              }, 500);
+            }
+          </script>
+        </body>
       </html>
     `);
-
-    iframeDoc.close();
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
-    document.body.removeChild(iframe);
+    
+    printWindow.document.close();
   };
 
   const handleVerification = (index: number, isValid: boolean) => {
